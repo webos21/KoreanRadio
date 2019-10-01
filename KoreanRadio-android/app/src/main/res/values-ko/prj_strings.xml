@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">라디오</string>
+    <string name="app_info">계정과 암호를 안전하게 저장하세요.</string>
+
+    <string name="navigation_drawer_open">내비 메뉴 열기</string>
+    <string name="navigation_drawer_close">내비 메뉴 닫기</string>
+
+    <string name="search">검색</string>
+    <string name="delete">삭제</string>
+    <string name="cancel">취소</string>
+
+    <string name="auth_title">사용자 인증</string>
+    <string name="auth_message">비밀번호를 입력해 주세요.</string>
+
+    <string name="auth_cfg_title">비밀번호 설정</string>
+    <string name="auth_cfg_message">사용할 비밀번호를 입력해 주세요.</string>
+    <string name="auth_cfg_info1">여기에 설정된 비밀번호는 정보 암호화에도 사용됩니다.\n설정한 비밀번호를 잊지 않도록 유의해 주세요.</string>
+    <string name="auth_cfg_info2">비밀번호는 숫자 6자만 입력받습니다.</string>
+    <string name="auth_cfg_new">신규 비밀번호 :</string>
+    <string name="auth_cfg_confirm">비밀번호 확인 :</string>
+    <string name="auth_cfg_save">저장</string>
+
+    <string name="cfg_icon_view">아이콘 보기</string>
+    <string name="cfg_total_item">총 갯수 :&#160;</string>
+
+    <string name="chp_delete">채널 삭제</string>
+    <string name="chp_delete_msg">다음 채널을 정말로 삭제할까요?</string>
+
+    <string name="che_title_add">채널 추가</string>
+    <string name="che_title_change">채널 정보 변경</string>
+
+    <string name="che_id">일련번호</string>
+    <string name="che_freq">주파수</string>
+    <string name="che_name">방송명</string>
+    <string name="che_purl">연결 URL</string>
+    <string name="che_lurl">로고 URL</string>
+    <string name="che_regday">등록일시</string>
+    <string name="che_fixday">최종수정</string>
+    <string name="che_memo">메모</string>
+    <string name="che_add">추가</string>
+    <string name="che_modify">변경</string>
+
+    <string name="chh_id">ex) 0</string>
+    <string name="chh_freq">ex) 93.9</string>
+    <string name="chh_name">ex) CBS</string>
+    <string name="chh_purl">ex) http://aac.cbs.co.kr/cbs939/cbs939.stream/playlist.m3u8</string>
+    <string name="chh_lurl">ex) http://file.cbs.co.kr/img_bank/GNBLOGO/201510/ibk276599904_6683.jpg</string>
+    <string name="chh_regday">ex) 2019-03-04</string>
+    <string name="chh_memo">ex) 원하는 내용을\n    자유롭게 쓰기...</string>
+
+    <string name="err_perm_exflah">암호책은 &quot;External Storage&quot; 권한이 꼭 필요합니다.</string>
+
+    <string name="err_input_new">&quot;신규 비밀번호&quot;를 입력해 주세요.</string>
+    <string name="err_input_confirm">&quot;비밀번호 확인&quot;을 입력해 주세요.</string>
+    <string name="err_input_mismatch">&quot;신규 비밀번호&quot;와 &quot;비밀번호 확인&quot;이 일치하지 않습니다.</string>
+
+    <string name="err_ch_freq">&quot;주파수&quot;을 정확히 입력해 주세요.</string>
+    <string name="err_ch_name">&quot;방송명&quot;을 정확히 입력해 주세요.</string>
+    <string name="err_ch_purl">&quot;방송 URL&quot;을 정확히 입력해 주세요.</string>
+    <string name="err_ch_lurl">&quot;로고 URL&quot;을 정확히 입력해 주세요.</string>
+    <string name="err_pb_regdate">&quot;등록일시&quot;를 정확히 입력해 주세요.</string>
+
+</resources>

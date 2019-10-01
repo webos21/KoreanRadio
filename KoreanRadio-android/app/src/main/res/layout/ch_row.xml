@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal"
+    tools:context="com.gmail.webos21.radio.MainActivity">
+
+    <ImageView
+        android:id="@+id/iv_favicon"
+        android:layout_width="45dip"
+        android:layout_height="45dip"
+        android:layout_marginTop="5dip"
+        android:layout_marginBottom="5dip"
+        android:layout_weight="1"
+        android:scaleType="fitCenter" />
+
+    <LinearLayout
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dip"
+        android:layout_marginBottom="5dip"
+        android:layout_weight="15"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="@string/chh_name"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tv_url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="2"
+            android:lines="2"
+            android:text="@string/chh_purl" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/iv_control"
+        android:layout_width="45dip"
+        android:layout_height="45dip"
+        android:layout_marginTop="5dip"
+        android:layout_marginBottom="5dip"
+        android:layout_weight="1"
+        android:src="@android:drawable/ic_media_play"
+        android:scaleType="fitCenter" />
+
+</LinearLayout>

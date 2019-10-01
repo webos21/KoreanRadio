@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">KoreanRadio</string>
+    <string name="app_info">Save your ID/PW, securely.</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="search">Search</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="auth_title">User Auth</string>
+    <string name="auth_message">Enter your passcode.</string>
+
+    <string name="auth_cfg_title">Auth Config</string>
+    <string name="auth_cfg_message">Enter your passcode.</string>
+    <string name="auth_cfg_info1">This passcode will be used for encrytion.\nDo not forget the passcode.</string>
+    <string name="auth_cfg_info2">The passcode must be 6 numeric characters.</string>
+    <string name="auth_cfg_new">New Passcode : </string>
+    <string name="auth_cfg_confirm">Confirm Passcode : </string>
+    <string name="auth_cfg_save">SAVE</string>
+
+    <string name="cfg_icon_view">Show Icon</string>
+    <string name="cfg_total_item">Total :&#160;</string>
+
+    <string name="chp_delete">Delete Channel</string>
+    <string name="chp_delete_msg">Do you want really delete below channel?</string>
+
+    <string name="che_title_add">Channel Add</string>
+    <string name="che_title_change">Channel Change</string>
+
+    <string name="che_id">Serial</string>
+    <string name="che_freq">Freq.</string>
+    <string name="che_name">Name</string>
+    <string name="che_purl">Play URL</string>
+    <string name="che_lurl">Logo URL</string>
+    <string name="che_regday">Reg. Date</string>
+    <string name="che_fixday">Fix. Date</string>
+    <string name="che_memo">Memo</string>
+    <string name="che_add">ADD</string>
+    <string name="che_modify">CHANGE</string>
+
+    <string name="chh_id">ex) 0</string>
+    <string name="chh_freq">ex) 93.9</string>
+    <string name="chh_name">ex) CBS</string>
+    <string name="chh_purl">ex) http://aac.cbs.co.kr/cbs939/cbs939.stream/playlist.m3u8</string>
+    <string name="chh_lurl">ex) http://file.cbs.co.kr/img_bank/GNBLOGO/201510/ibk276599904_6683.jpg</string>
+    <string name="chh_regday">ex) 2019-03-04</string>
+    <string name="chh_memo">ex) whatever you want to write...</string>
+
+    <string name="err_perm_exflah">This app needs the access permission of &quot;External Storage&quot;</string>
+
+    <string name="err_input_new">Please, input the &quot;New Passcode&quot;.</string>
+    <string name="err_input_confirm">Please, input the &quot;Confirm Passcode&quot;.</string>
+    <string name="err_input_mismatch">&quot;New Passcode&quot; is not match to &quot;Confirm Passcode&quot;.</string>
+
+    <string name="err_ch_freq">Please, input the valid &quot;Freq.&quot;.</string>
+    <string name="err_ch_name">Please, input the valid &quot;Name&quot;.</string>
+    <string name="err_ch_purl">Please, input the valid &quot;Play URL&quot;.</string>
+    <string name="err_ch_lurl">Please, input the valid &quot;Logo URL&quot;.</string>
+    <string name="err_pb_regdate">Please, input the valid &quot;Reg. Date&quot;.</string>
+
+</resources>
