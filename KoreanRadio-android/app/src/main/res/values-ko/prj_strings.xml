@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">라디오</string>
-    <string name="app_info">계정과 암호를 안전하게 저장하세요.</string>
+    <string name="app_info">라디오를 들어봅시다.</string>
 
     <string name="navigation_drawer_open">내비 메뉴 열기</string>
     <string name="navigation_drawer_close">내비 메뉴 닫기</string>

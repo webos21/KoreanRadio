@@ -2,14 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.gmail.webos21.radio">
 
-    <!-- For Internet Access -->
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-
-    <!-- For Accessing to External Storage -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
     <application
         android:name="com.gmail.webos21.radio.RadioApp"
         android:allowBackup="true"
@@ -44,6 +36,22 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
+        <service
+            android:name="com.gmail.webos21.radio.RadioService"
+            android:exported="false"
+            android:label="T40Service" />
+
     </application>
+
+    <!-- For Internet Access -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <!-- For Accessing to External Storage -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- For Notification Player -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
 </manifest>

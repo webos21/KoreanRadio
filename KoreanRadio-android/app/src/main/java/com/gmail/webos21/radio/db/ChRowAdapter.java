@@ -1,6 +1,7 @@
 package com.gmail.webos21.radio.db;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gmail.webos21.android.ild.ImageLoader;
+import com.gmail.webos21.radio.ChEditActivity;
+import com.gmail.webos21.radio.Consts;
 import com.gmail.webos21.radio.R;
 import com.gmail.webos21.radio.RadioApp;
 
@@ -87,9 +90,20 @@ public class ChRowAdapter extends BaseAdapter {
             holder.iconImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_gt));
         }
         holder.titleTextView.setText("[" + chData.getChFreq() + "] " + chData.getChName());
+        holder.titleTextView.setTag(chData);
+        holder.titleTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v != null) {
+                    ChRow ref = (ChRow) v.getTag();
+                    Intent i = new Intent(v.getContext(), ChEditActivity.class);
+                    i.putExtra(Consts.EXTRA_ARG_ID, ref.getId());
+                    v.getContext().startActivity(i);
+                }
+            }
+        });
         holder.descTextView.setText(chData.getPlayUrl());
         holder.playButton.setTag(holder);
-
         holder.playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

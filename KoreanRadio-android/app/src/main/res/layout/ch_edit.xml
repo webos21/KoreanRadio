@@ -6,6 +6,17 @@
     android:orientation="vertical"
     tools:context="com.gmail.webos21.radio.ChAddActivity">
 
+    <TextView
+        android:id="@+id/lbl_title"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:text="@string/che_title_add"
+        android:textColor="@color/colorPrimaryText"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,16 +31,29 @@
             android:paddingRight="@dimen/pb_home_hmargin"
             android:paddingBottom="@dimen/pb_home_vmargin">
 
-            <Button
-                android:id="@+id/btn_save"
-                style="@style/Widget.AppCompat.Button.Colored"
+            <LinearLayout
+                android:id="@+id/panel_id"
+                style="@style/PreferenceCategoryLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dip"
-                android:layout_marginBottom="20dip"
-                android:text="@string/che_add"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:orientation="horizontal"
+                android:weightSum="6">
+
+                <TextView
+                    style="@style/PreferenceCategory"
+                    android:layout_width="0dip"
+                    android:layout_weight="2"
+                    android:text="@string/che_id" />
+
+                <TextView
+                    android:id="@+id/tv_id"
+                    style="@style/PreferenceCategory"
+                    android:layout_width="0dip"
+                    android:layout_weight="4"
+                    android:hint="@string/chh_id"
+                    android:text="" />
+
+            </LinearLayout>
 
             <LinearLayout
                 style="@style/PreferenceCategoryLayout"
@@ -37,6 +61,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:weightSum="6">
+
+                <TextView
+                    style="@style/PreferenceCategory"
+                    android:layout_width="0dip"
+                    android:layout_weight="2"
+                    android:text="@string/che_freq" />
 
                 <EditText
                     android:id="@+id/ed_freq"
@@ -49,12 +79,6 @@
                     android:maxLines="1"
                     android:textSize="18sp" />
 
-                <TextView
-                    style="@style/PreferenceCategory"
-                    android:layout_width="0dip"
-                    android:layout_weight="2"
-                    android:text="@string/che_freq" />
-
             </LinearLayout>
 
             <LinearLayout
@@ -63,6 +87,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:weightSum="6">
+
+                <TextView
+                    style="@style/PreferenceCategory"
+                    android:layout_width="0dip"
+                    android:layout_weight="2"
+                    android:text="@string/che_name" />
 
                 <EditText
                     android:id="@+id/ed_name"
@@ -74,12 +104,6 @@
                     android:maxLines="1"
                     android:textSize="18sp" />
 
-                <TextView
-                    style="@style/PreferenceCategory"
-                    android:layout_width="0dip"
-                    android:layout_weight="2"
-                    android:text="@string/che_name" />
-
             </LinearLayout>
 
             <LinearLayout
@@ -88,6 +112,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:weightSum="6">
+
+                <TextView
+                    style="@style/PreferenceCategory"
+                    android:layout_width="0dip"
+                    android:layout_weight="2"
+                    android:text="@string/che_purl" />
 
                 <EditText
                     android:id="@+id/ed_purl"
@@ -99,12 +129,6 @@
                     android:maxLines="1"
                     android:textSize="18sp" />
 
-                <TextView
-                    style="@style/PreferenceCategory"
-                    android:layout_width="0dip"
-                    android:layout_weight="2"
-                    android:text="@string/che_purl" />
-
             </LinearLayout>
 
             <LinearLayout
@@ -113,6 +137,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:weightSum="6">
+
+                <TextView
+                    style="@style/PreferenceCategory"
+                    android:layout_width="0dip"
+                    android:layout_weight="2"
+                    android:text="@string/che_lurl" />
 
                 <EditText
                     android:id="@+id/ed_lurl"
@@ -123,12 +153,6 @@
                     android:inputType="textUri"
                     android:maxLines="1"
                     android:textSize="18sp" />
-
-                <TextView
-                    style="@style/PreferenceCategory"
-                    android:layout_width="0dip"
-                    android:layout_weight="2"
-                    android:text="@string/che_lurl" />
 
             </LinearLayout>
 
@@ -188,6 +212,12 @@
                 android:orientation="horizontal"
                 android:weightSum="6">
 
+                <TextView
+                    style="@style/PreferenceCategory"
+                    android:layout_width="0dip"
+                    android:layout_weight="2"
+                    android:text="@string/che_memo" />
+
                 <EditText
                     android:id="@+id/ed_memo"
                     android:layout_width="0dip"
@@ -199,50 +229,20 @@
                     android:minLines="3"
                     android:textSize="18sp" />
 
-                <TextView
-                    style="@style/PreferenceCategory"
-                    android:layout_width="0dip"
-                    android:layout_weight="2"
-                    android:text="@string/che_memo" />
-
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/panel_id"
-                style="@style/PreferenceCategoryLayout"
+            <Button
+                android:id="@+id/btn_save"
+                style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="6">
-
-                <TextView
-                    style="@style/PreferenceCategory"
-                    android:layout_width="0dip"
-                    android:layout_weight="2"
-                    android:text="@string/che_id" />
-
-                <TextView
-                    android:id="@+id/tv_id"
-                    style="@style/PreferenceCategory"
-                    android:layout_width="0dip"
-                    android:layout_weight="4"
-                    android:hint="@string/chh_id"
-                    android:text="" />
-
-            </LinearLayout>
+                android:layout_marginTop="10dip"
+                android:layout_marginBottom="20dip"
+                android:text="@string/che_add"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
     </ScrollView>
-
-    <TextView
-        android:id="@+id/lbl_title"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
-        android:gravity="center"
-        android:text="@string/che_title_add"
-        android:textColor="@color/colorPrimaryText"
-        android:textSize="30sp"
-        android:textStyle="bold" />
 
 </LinearLayout>
