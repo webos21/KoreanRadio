@@ -1,5 +1,8 @@
 package com.gmail.webos21.radio.db;
 
+import android.database.Cursor;
+import android.provider.MediaStore;
+
 import java.util.Date;
 
 public class ChRow {
@@ -87,4 +90,5 @@ public class ChRow {
     public void setMemo(String memo) {
         this.memo = memo;
     }
+
 }
