@@ -1,6 +1,5 @@
 package com.gmail.webos21.radio.db;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -9,23 +8,20 @@ import android.util.Log;
 
 import com.gmail.webos21.radio.Consts;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class ChDbHelper extends SQLiteOpenHelper implements ChDbInterface {
+public class ChDbHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "ChDbHelper";
 
     private static final String CREATE_TB_RADIO_CHANNEL =
             /* Indent */"CREATE TABLE IF NOT EXISTS " + Consts.TB_RADIO_CHANNEL + " (" +
-            /* Indent */"	id               INTEGER  PRIMARY KEY  AUTOINCREMENT, " +
-            /* Indent */"	ch_freq          VARCHAR(6), " +
-            /* Indent */"	ch_name          VARCHAR(100), " +
-            /* Indent */"	play_url         VARCHAR(100), " +
-            /* Indent */"	logo_url         VARCHAR(100), " +
-            /* Indent */"	reg_date         INTEGER, " +
-            /* Indent */"	fix_date         INTEGER, " +
-            /* Indent */"	memo             VARCHAR(4000) " +
+            /* Indent */"	" + ChRow.ID + "       INTEGER  PRIMARY KEY  AUTOINCREMENT, " +
+            /* Indent */"	" + ChRow.CH_FREQ + "  VARCHAR(6), " +
+            /* Indent */"	" + ChRow.CH_NAME + "  VARCHAR(100), " +
+            /* Indent */"	" + ChRow.PLAY_URL + " VARCHAR(100), " +
+            /* Indent */"	" + ChRow.LOGO_URL + " VARCHAR(100), " +
+            /* Indent */"	" + ChRow.REG_DATE + " INTEGER, " +
+            /* Indent */"	" + ChRow.FIX_DATE + " INTEGER, " +
+            /* Indent */"	" + ChRow.MEMO + "      VARCHAR(4000) " +
             /* Indent */");";
 
     private static final String DROP_TB_RADIO_CHANNEL =
@@ -57,181 +53,6 @@ public class ChDbHelper extends SQLiteOpenHelper implements ChDbInterface {
         if (oldVersion != newVersion) {
             onCreate(db);
         }
-    }
-
-    @Override
-    public List<ChRow> findRows() {
-        List<ChRow> aList = new ArrayList<ChRow>();
-
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor rset = db.rawQuery("SELECT * FROM "
-                + Consts.TB_RADIO_CHANNEL, null);
-        if (rset == null || rset.getCount() == 0) {
-            return aList;
-        }
-
-        rset.moveToFirst();
-        do {
-            ChRow aRow = new ChRow(
-                    /* id ------------- */rset.getLong(0),
-                    /* ch_freq -------- */rset.getString(1),
-                    /* ch_name -------- */rset.getString(2),
-                    /* play_url ------- */rset.getString(3),
-                    /* logo_url ------- */rset.getString(4),
-                    /* reg_date ------- */rset.getLong(5),
-                    /* fix_date ------- */rset.getLong(6),
-                    /* memo ----------- */rset.getString(7));
-            aList.add(aRow);
-        } while (rset.moveToNext());
-
-        if (rset != null) {
-            rset.close();
-        }
-        db.close();
-
-        if (Consts.DB_DEBUG) {
-            debugDump(Consts.TB_RADIO_CHANNEL);
-        }
-
-        return aList;
-    }
-
-    @Override
-    public Cursor findRowsCursor() {
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor rset = db.rawQuery("SELECT * FROM "
-                + Consts.TB_RADIO_CHANNEL, null);
-        return rset;
-    }
-
-    @Override
-    public List<ChRow> findRows(String keyString) {
-        List<ChRow> aList = new ArrayList<ChRow>();
-
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor rset = db.rawQuery(
-                /* intent ---------- */ "SELECT * " +
-                        /* intent -------- */ " FROM " + Consts.TB_RADIO_CHANNEL + " " +
-                        /* intent -------- */ " WHERE (surl LIKE ?) OR " +
-                        /* intent -------- */ "        (sname LIKE ?) OR " +
-                        /* intent -------- */ "        (stype LIKE ?)"
-                , new String[]{"%" + keyString + "%", "%" + keyString + "%", "%" + keyString + "%"});
-        if (rset == null || rset.getCount() == 0) {
-            return aList;
-        }
-
-        rset.moveToFirst();
-        do {
-            ChRow aRow = new ChRow(
-                    /* id ------------- */rset.getLong(0),
-                    /* ch_freq -------- */rset.getString(1),
-                    /* ch_name -------- */rset.getString(2),
-                    /* play_url ------- */rset.getString(3),
-                    /* logo_url ------- */rset.getString(4),
-                    /* reg_date ------- */rset.getLong(5),
-                    /* fix_date ------- */rset.getLong(6),
-                    /* memo ----------- */rset.getString(7));
-            aList.add(aRow);
-        } while (rset.moveToNext());
-
-        if (rset != null) {
-            rset.close();
-        }
-        db.close();
-
-        return aList;
-    }
-
-    @Override
-    public Cursor findRowsCursor(String keyString) {
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor rset = db.rawQuery(
-                /* intent ---------- */ "SELECT * " +
-                        /* intent -------- */ " FROM " + Consts.TB_RADIO_CHANNEL + " " +
-                        /* intent -------- */ " WHERE (surl LIKE ?) OR " +
-                        /* intent -------- */ "        (sname LIKE ?) OR " +
-                        /* intent -------- */ "        (stype LIKE ?)"
-                , new String[]{"%" + keyString + "%", "%" + keyString + "%", "%" + keyString + "%"});
-        return rset;
-    }
-
-    @Override
-    public ChRow getRow(Long id) {
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor rset = db.rawQuery("SELECT * FROM " + Consts.TB_RADIO_CHANNEL
-                + " WHERE id = " + id, null);
-        if (rset == null || rset.getCount() == 0) {
-            return null;
-        }
-        rset.moveToFirst();
-        ChRow aRow = new ChRow(
-                /* id ------------- */rset.getLong(0),
-                /* ch_freq -------- */rset.getString(1),
-                /* ch_name -------- */rset.getString(2),
-                /* play_url ------- */rset.getString(3),
-                /* logo_url ------- */rset.getString(4),
-                /* reg_date ------- */rset.getLong(5),
-                /* fix_date ------- */rset.getLong(6),
-                /* memo ----------- */rset.getString(7));
-        rset.close();
-        db.close();
-        return aRow;
-    }
-
-    @Override
-    public ChRow getRow(ChRow aRow) {
-        return getRow(aRow.getId());
-    }
-
-    @Override
-    public boolean updateRow(ChRow newRow) {
-        SQLiteDatabase db = getWritableDatabase();
-        Cursor rset = db.rawQuery("SELECT * FROM " + Consts.TB_RADIO_CHANNEL
-                + " WHERE id = " + newRow.getId(), null);
-        if (rset == null || rset.getCount() == 0) {
-            ContentValues cv = new ContentValues();
-            cv.put("_id", newRow.getId());
-            cv.put("ch_freq", newRow.getChFreq());
-            cv.put("ch_name", newRow.getChName());
-            cv.put("play_url", newRow.getPlayUrl());
-            cv.put("logo_url", newRow.getLogoUrl());
-            cv.put("reg_date", newRow.getRegDate().getTime());
-            cv.put("fix_date", newRow.getFixDate().getTime());
-            cv.put("memo", newRow.getMemo());
-            db.insert(Consts.TB_RADIO_CHANNEL, null, cv);
-        } else {
-            ContentValues cv = new ContentValues();
-            cv.put("ch_freq", newRow.getChFreq());
-            cv.put("ch_name", newRow.getChName());
-            cv.put("play_url", newRow.getPlayUrl());
-            cv.put("logo_url", newRow.getLogoUrl());
-            cv.put("reg_date", newRow.getRegDate().getTime());
-            cv.put("fix_date", newRow.getFixDate().getTime());
-            cv.put("memo", newRow.getMemo());
-            db.update(Consts.TB_RADIO_CHANNEL, cv, " id = ? ",
-                    new String[]{Long.toString(newRow.getId())});
-        }
-
-        if (rset != null) {
-            rset.close();
-        }
-        db.close();
-
-        return true;
-    }
-
-    @Override
-    public int deleteRow(Long id) {
-        SQLiteDatabase db = getWritableDatabase();
-        int result = db.delete(Consts.TB_RADIO_CHANNEL, "id = " + id, null);
-        db.close();
-
-        return result;
-    }
-
-    @Override
-    public int deleteRow(ChRow aRow) {
-        return deleteRow(aRow.getId());
     }
 
     private void debugDump(String tableName) {

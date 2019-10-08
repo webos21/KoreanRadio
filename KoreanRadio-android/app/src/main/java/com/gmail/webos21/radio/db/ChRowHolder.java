@@ -10,14 +10,12 @@ import com.gmail.webos21.android.ild.ImageLoader;
 import com.gmail.webos21.radio.ChEditActivity;
 import com.gmail.webos21.radio.Consts;
 import com.gmail.webos21.radio.R;
-import com.gmail.webos21.radio.RadioApp;
 
 public class ChRowHolder extends RecyclerView.ViewHolder {
 
     public ImageView iconImageView;
     public TextView titleTextView;
     public TextView descTextView;
-    public ImageView playButton;
 
     private ImageLoader imgLoader;
 
@@ -30,7 +28,6 @@ public class ChRowHolder extends RecyclerView.ViewHolder {
         iconImageView = (ImageView) view.findViewById(R.id.iv_favicon);
         titleTextView = (TextView) view.findViewById(R.id.tv_title);
         descTextView = (TextView) view.findViewById(R.id.tv_url);
-        playButton = (ImageView) view.findViewById(R.id.iv_control);
     }
 
     public void setChannel(ChRow item, int position, boolean bShowIcon) {
@@ -61,25 +58,5 @@ public class ChRowHolder extends RecyclerView.ViewHolder {
             }
         });
         descTextView.setText(item.getPlayUrl());
-        playButton.setTag(this);
-        playButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (v != null) {
-                    ChRowHolder ref = (ChRowHolder) v.getTag();
-                    RadioApp app = (RadioApp) v.getContext().getApplicationContext();
-                    if (app != null) {
-                        if (app.isPlaying()) {
-                            ref.playButton.setImageResource(android.R.drawable.ic_media_play);
-                            app.stopRadio();
-                        } else {
-                            ref.playButton.setImageResource(android.R.drawable.ic_media_pause);
-                            String url = ref.descTextView.getText().toString();
-                            app.playRadio(url);
-                        }
-                    }
-                }
-            }
-        });
     }
 }

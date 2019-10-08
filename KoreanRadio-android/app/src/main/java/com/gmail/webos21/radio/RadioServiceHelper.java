@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
+import com.gmail.webos21.radio.db.ChRow;
+
 import java.util.ArrayList;
 
 public class RadioServiceHelper {
@@ -28,15 +30,9 @@ public class RadioServiceHelper {
         context.bindService(new Intent(context, RadioService.class).setPackage(context.getPackageName()), mServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    public void setPlayList(ArrayList<Long> audioIds) {
+    public void play(ChRow item) {
         if (mService != null) {
-            mService.setPlayList(audioIds);
-        }
-    }
-
-    public void play(int position) {
-        if (mService != null) {
-            mService.play(position);
+            mService.play(item);
         }
     }
 
@@ -63,19 +59,19 @@ public class RadioServiceHelper {
 
     public void pause() {
         if (mService != null) {
-            mService.play();
+            mService.pause();
         }
     }
 
     public void forward() {
         if (mService != null) {
-            mService.forward();
+            /* Nothing to do */
         }
     }
 
     public void rewind() {
         if (mService != null) {
-            mService.rewind();
+            /* Nothing to do */
         }
     }
 

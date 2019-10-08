@@ -1,5 +1,8 @@
 package com.gmail.webos21.radio.db;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -17,13 +20,12 @@ public class ChImporter extends AsyncTask<Void, Void, Void> {
 
     private static final String TAG = "ChImporter";
 
-    private ChDbInterface pdi;
+    private Context context;
     private File csvFile;
-
     private Runnable postRun;
 
-    public ChImporter(ChDbInterface pdi, File csvFile, Runnable postRun) {
-        this.pdi = pdi;
+    public ChImporter(Context context, File csvFile, Runnable postRun) {
+        this.context = context;
         this.csvFile = csvFile;
         this.postRun = postRun;
     }
@@ -39,7 +41,7 @@ public class ChImporter extends AsyncTask<Void, Void, Void> {
                 if (Consts.DEBUG) {
                     Log.i(TAG, "[FileRead] " + s);
                 }
-                processLine(pdi, s);
+                processLine(context, s);
             }
 
             bri.close();
@@ -58,7 +60,7 @@ public class ChImporter extends AsyncTask<Void, Void, Void> {
                 bri = null;
             }
         }
-        pdi = null;
+        context = null;
 
         return null;
     }
@@ -69,7 +71,7 @@ public class ChImporter extends AsyncTask<Void, Void, Void> {
         postRun.run();
     }
 
-    private void processLine(ChDbInterface pdi, String s) {
+    private void processLine(Context context, String s) {
         String[] strArr = s.split(",");
 
         Long id = null;
@@ -134,7 +136,18 @@ public class ChImporter extends AsyncTask<Void, Void, Void> {
             return;
         }
 
-        ChRow pbrow = new ChRow(id, ch_freq, ch_name, play_url, logo_url, regdate.getTime(), fixdate.getTime(), memo);
-        pdi.updateRow(pbrow);
+        ContentValues cv = new ContentValues();
+        cv.put("ch_freq", ch_freq);
+        cv.put("ch_name", ch_name);
+        cv.put("play_url", play_url);
+        cv.put("logo_url", logo_url);
+        cv.put("reg_date", (regdate != null) ? regdate.getTime() : System.currentTimeMillis());
+        cv.put("fix_date", (fixdate != null) ? fixdate.getTime() : System.currentTimeMillis());
+        cv.put("memo", memo);
+
+        Uri addUri = context.getContentResolver().insert(
+                Uri.parse("content://" + Consts.CHANNEL_PROVIER_AUTHORITY + "/" + Consts.TB_RADIO_CHANNEL),
+                cv
+        );
     }
 }

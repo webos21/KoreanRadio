@@ -33,7 +33,7 @@ public class ChooseFileDialog extends Dialog {
     private static final int PARENT_FODLER_LEVEL = 1;
     private static final int FILES_IN_FOLDER_LEVEL = 2;
 
-    private static final int MINIMUM_FILESIZE_BYTES = 1024;
+    private static final int MINIMUM_FILESIZE_BYTES = 2;
 
     private static final int BG_COLOR_0 = 0;
 

@@ -1,7 +1,6 @@
 package com.gmail.webos21.radio;
 
 import android.app.Application;
-import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 
@@ -13,7 +12,7 @@ public class RadioApp extends Application {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
-    private MediaPlayer mp;
+    private RadioServiceHelper rsh;
 
     @Override
     public void onCreate() {
@@ -21,6 +20,7 @@ public class RadioApp extends Application {
         if (Consts.DEBUG) {
             Log.i(TAG, "onCreate!!!!!!");
         }
+        rsh = new RadioServiceHelper(getApplicationContext());
     }
 
     @Override
@@ -29,39 +29,16 @@ public class RadioApp extends Application {
         if (Consts.DEBUG) {
             Log.i(TAG, "onTerminate!!!!!!");
         }
-        if (mp != null) {
-            mp.stop();
-            mp.release();
-            mp = null;
-        }
-    }
-
-    public void playRadio(String url) {
-        try {
-            if (mp == null) {
-                mp = new MediaPlayer();
+        if (rsh != null) {
+            if (rsh.isPlaying()) {
+                rsh.pause();
             }
-            mp.setDataSource(url);
-            mp.prepare();
-            mp.start();
-        } catch (Exception e) {
-            e.printStackTrace();
+            rsh = null;
         }
     }
 
-    public void stopRadio() {
-        try {
-            if (mp != null) {
-                mp.stop();
-                mp.release();
-                mp = null;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public RadioServiceHelper getRadioServiceHelper() {
+        return rsh;
     }
 
-    public boolean isPlaying() {
-        return (mp != null);
-    }
 }

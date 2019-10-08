@@ -1,5 +1,8 @@
 package com.gmail.webos21.radio.db;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -10,19 +13,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
 public class ChExporter extends AsyncTask<Void, Void, Void> {
 
     private static final String TAG = "ChExporter";
 
-    private ChDbInterface pdi;
+    private Context context;
     private File csvFile;
-
     private Runnable postRun;
 
-    public ChExporter(ChDbInterface pdi, File csvFile, Runnable postRun) {
-        this.pdi = pdi;
+    public ChExporter(Context context, File csvFile, Runnable postRun) {
+        this.context = context;
         this.csvFile = csvFile;
         this.postRun = postRun;
     }
@@ -30,37 +31,49 @@ public class ChExporter extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... voids) {
         BufferedWriter bwo = null;
-        List<ChRow> pblist = pdi.findRows();
-        StringBuffer sb = new StringBuffer();
 
-        try {
-            bwo = new BufferedWriter(new FileWriter(csvFile));
-            for (ChRow pbrow : pblist) {
-                String l = makeLine(pbrow, sb);
-                if (Consts.DEBUG) {
-                    Log.i(TAG, l);
-                }
-                bwo.write(l);
-            }
-            bwo.close();
-            bwo = null;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (bwo != null) {
-                try {
-                    bwo.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        String[] projection = null; /* "null" means ALL */
+        String selection = null;
+        String[] selectionArgs = null;
+        String sortOrder = null;
+
+        Cursor rset = context.getContentResolver().query(
+                Uri.parse("content://" + Consts.CHANNEL_PROVIER_AUTHORITY + "/" + Consts.TB_RADIO_CHANNEL),
+                projection, selection, selectionArgs, sortOrder
+        );
+
+        if (rset != null && rset.getCount() > 0) {
+            rset.moveToFirst();
+            StringBuffer sb = new StringBuffer();
+            try {
+                bwo = new BufferedWriter(new FileWriter(csvFile));
+                do {
+                    ChRow aRow = ChRow.bindCursor(rset);
+                    String l = makeLine(aRow, sb);
+                    if (Consts.DEBUG) {
+                        Log.i(TAG, l);
+                    }
+                    bwo.write(l);
+                } while (rset.moveToNext());
+                bwo.close();
                 bwo = null;
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (bwo != null) {
+                    try {
+                        bwo.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    bwo = null;
+                }
             }
+            rset.close();
+            sb = null;
         }
-
-        sb = null;
-        pdi = null;
 
         return null;
     }

@@ -8,16 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.gmail.webos21.android.ild.ImageLoader;
 import com.gmail.webos21.radio.R;
 
-import java.util.List;
-
 public class ChRowAdapter extends CursorRecyclerViewAdapter<RecyclerView.ViewHolder> {
-
-    private ChDbInterface chDb;
-
-    private ImageLoader imgLoader;
 
     private boolean bShowIcon;
 

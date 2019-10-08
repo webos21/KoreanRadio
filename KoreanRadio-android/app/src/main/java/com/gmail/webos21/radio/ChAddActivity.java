@@ -15,6 +15,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.gmail.webos21.radio.db.ChRow;
+
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -149,16 +151,16 @@ public class ChAddActivity extends AppCompatActivity implements View.OnClickList
         }
 
         ContentValues cv = new ContentValues();
-        cv.put("ch_freq", ch_freq);
-        cv.put("ch_name", ch_name);
-        cv.put("play_url", play_url);
-        cv.put("logo_url", logo_url);
-        cv.put("reg_date", rd.getTime());
-        cv.put("fix_date", System.currentTimeMillis());
-        cv.put("memo", memo);
+        cv.put(ChRow.CH_FREQ, ch_freq);
+        cv.put(ChRow.CH_NAME, ch_name);
+        cv.put(ChRow.PLAY_URL, play_url);
+        cv.put(ChRow.LOGO_URL, logo_url);
+        cv.put(ChRow.REG_DATE, rd.getTime());
+        cv.put(ChRow.FIX_DATE, System.currentTimeMillis());
+        cv.put(ChRow.MEMO, memo);
 
         Uri addUri = getContentResolver().insert(
-                Uri.parse("content://" + Consts.CHANNEL_PROVIER_URI + "/" + Consts.TB_RADIO_CHANNEL),
+                Uri.parse("content://" + Consts.CHANNEL_PROVIER_AUTHORITY + "/" + Consts.TB_RADIO_CHANNEL),
                 cv
         );
 

@@ -29,7 +29,7 @@ public class ChannelContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        Cursor c = db.query(Consts.TB_RADIO_CHANNEL, null, selection, selectionArgs, null, null, sortOrder);
+        Cursor c = db.query(Consts.TB_RADIO_CHANNEL, projection, selection, selectionArgs, null, null, sortOrder);
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }

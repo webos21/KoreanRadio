@@ -14,7 +14,8 @@ public class Consts {
 
     public static final int MAIN_LOADER_ID = 1;
 
-    public static final String CHANNEL_PROVIER_URI = "com.gmail.webos21.radio.ChannelContentProvider";
+    public static final String CHANNEL_PROVIER_AUTHORITY = "com.gmail.webos21.radio.cp.channel";
+    public static final String CHANNEL_PROVIER_URI = "content://com.gmail.webos21.radio.cp.channel";
 
     public static final int ACTION_ADD = 3;
     public static final int ACTION_MODIFY = 4;
@@ -30,6 +31,7 @@ public class Consts {
     public static final String PREF_SHOW_ICON = "pref_show_icon";
 
     public static final String NOTI_CHANNEL = "com.gmail.webos21.radio.channel";
+    public static final String NOTI_CHANNEL_NAME = "Radio Notification Channel";
 
     public static final String TOGGLE_PLAY = "com.gmail.webos21.radio.action.TOGGLE_PLAY";
     public static final String FORWARD = "com.gmail.webos21.radio.action.FORWARD";

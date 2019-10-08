@@ -2,6 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.gmail.webos21.radio">
 
+    <permission
+        android:name="com.gmail.webos21.radio.cp.channel.READ"
+        android:label="Read permission of Channel Provider"
+        android:protectionLevel="normal" />
+
+    <permission
+        android:name="com.gmail.webos21.radio.cp.channel.WRITE"
+        android:label="Write permission of Channel Provider"
+        android:protectionLevel="normal" />
+
     <application
         android:name="com.gmail.webos21.radio.RadioApp"
         android:allowBackup="true"
@@ -38,13 +48,23 @@
 
         <provider
             android:name=".ChannelContentProvider"
-            android:authorities="com.gmail.webos21.radio.ChannelContentProvider"
-            android:exported="true" />
+            android:authorities="com.gmail.webos21.radio.cp.channel"
+            android:exported="true"
+            android:readPermission="com.gmail.webos21.radio.cp.channel.READ"
+            android:writePermission="com.gmail.webos21.radio.cp.channel.WRITE" />
 
         <service
             android:name=".RadioService"
-            android:exported="false"
-            android:label="RadioService" />
+            android:enabled="true"
+            android:exported="true"
+            android:label="RadioService">
+            <intent-filter>
+                <action android:name="com.gmail.webos21.radio.action.REWIND" />
+                <action android:name="com.gmail.webos21.radio.action.TOGGLE_PLAY" />
+                <action android:name="com.gmail.webos21.radio.action.FORWARD" />
+                <action android:name="com.gmail.webos21.radio.action.CLOSE" />
+            </intent-filter>
+        </service>
     </application>
 
     <!-- For Internet Access -->

@@ -1,12 +1,15 @@
 package com.gmail.webos21.radio;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,11 +30,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -39,8 +42,6 @@ import android.widget.Toast;
 
 import com.gmail.webos21.android.patch.PRNGFixes;
 import com.gmail.webos21.android.widget.ChooseFileDialog;
-import com.gmail.webos21.radio.db.ChDbInterface;
-import com.gmail.webos21.radio.db.ChDbManager;
 import com.gmail.webos21.radio.db.ChExporter;
 import com.gmail.webos21.radio.db.ChImporter;
 import com.gmail.webos21.radio.db.ChRow;
@@ -59,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private RecyclerView chlist;
     private ChRowAdapter chAdapter;
+
+    private ItemTouchHelper ith;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +121,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         chlist.setLayoutManager(layoutManager);
+
+        ith = new ItemTouchHelper(new SwipeCallback());
+        ith.attachToRecyclerView(chlist);
 
 //        chlist.setAdapter(chAdapter);
 //        chlist.setOnItemClickListener(new ChRowClickedListener());
@@ -250,11 +256,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void getAllChannelListFromProvider() {
-        getSupportLoaderManager().initLoader(Consts.MAIN_LOADER_ID, null, new ChannelLoaderCallback());
+        Log.d(TAG, "[getAllChannelListFromProvider]");
+        getSupportLoaderManager().restartLoader(Consts.MAIN_LOADER_ID, null, new ChannelLoaderCallback());
     }
 
     private void getChannelListFromProvider(String searchTerm) {
-        getSupportLoaderManager().initLoader(Consts.MAIN_LOADER_ID, null, new ChannelLoaderCallback(searchTerm));
+        Log.d(TAG, "[getChannelListFromProvider] searchTerm = " + searchTerm);
+        getSupportLoaderManager().restartLoader(Consts.MAIN_LOADER_ID, null, new ChannelLoaderCallback(searchTerm));
     }
 
     private void showFileDialog() {
@@ -285,9 +293,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         String mountPoint = Environment.getExternalStorageDirectory().toString();
         File csvFile = new File(mountPoint + "/Download", "radio_channel.csv");
-        ChDbInterface pdi = ChDbManager.getInstance().getPbDbInterface();
 
-        new ChExporter(pdi, csvFile, new Runnable() {
+        new ChExporter(MainActivity.this, csvFile, new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(MainActivity.this, "File is exported!!", Toast.LENGTH_SHORT).show();
@@ -347,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @NonNull
         @Override
         public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-            Uri uri = Uri.parse("content://" + Consts.CHANNEL_PROVIER_URI + "/" + Consts.TB_RADIO_CHANNEL);
+            Uri uri = Uri.parse("content://" + Consts.CHANNEL_PROVIER_AUTHORITY + "/" + Consts.TB_RADIO_CHANNEL);
             String[] projection = new String[]{
                     ChRow.ID,
                     ChRow.CH_FREQ,
@@ -359,15 +366,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     ChRow.MEMO
             };
             String selection = null;
+            String[] selectionArgs = null;
             String sortOrder = null;
-            if (searchTerm != null) {
 
+            Log.d(TAG, "[ChannelLoaderCallback] searchTerm = " + searchTerm);
+
+            if (searchTerm != null) {
+                selection = "(" + ChRow.CH_FREQ + " LIKE ?) OR (" + ChRow.CH_NAME + " LIKE ?) OR (" + ChRow.MEMO + " LIKE ?)";
+                selectionArgs = new String[]{"%" + searchTerm + "%", "%" + searchTerm + "%", "%" + searchTerm + "%"};
             }
-            return new CursorLoader(getApplicationContext(), uri, projection, selection, null, sortOrder);
+            return new CursorLoader(getApplicationContext(), uri, projection, selection, selectionArgs, sortOrder);
         }
 
         @Override
         public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+            Log.d(TAG, "[ChannelLoaderCallback] onLoadFinished / data = " + data.getCount());
             MainActivity.this.chAdapter.swapCursor(data);
             String totalSite = MainActivity.this.getResources().getString(R.string.cfg_total_item) + MainActivity.this.chAdapter.getItemCount();
             MainActivity.this.tvTotalSite.setText(totalSite);
@@ -375,87 +388,108 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+            Log.d(TAG, "[ChannelLoaderCallback] onLoaderReset");
             MainActivity.this.chAdapter.swapCursor(null);
             String totalSite = MainActivity.this.getResources().getString(R.string.cfg_total_item) + MainActivity.this.chAdapter.getItemCount();
             MainActivity.this.tvTotalSite.setText(totalSite);
         }
     }
 
-    private class ChRowClickedListener implements AdapterView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Object o = parent.getItemAtPosition(position);
-            if (o instanceof ChRow) {
-                final ChRow chrow = (ChRow) o;
-                if (Consts.DEBUG) {
-                    Log.i(TAG, "o is ChRow!!!!!!");
-                    Log.i(TAG, "id = " + chrow.getId());
-                    Log.i(TAG, "name = " + chrow.getChName());
-                    Log.i(TAG, "url = " + chrow.getPlayUrl());
-                }
+    private class SwipeCallback extends ItemTouchHelper.SimpleCallback {
 
-                Intent i = new Intent(MainActivity.this, ChEditActivity.class);
-                i.putExtra(Consts.EXTRA_ARG_ID, chrow.getId());
-                MainActivity.this.startActivityForResult(i, Consts.ACTION_MODIFY);
-            } else {
-                if (Consts.DEBUG) {
-                    Log.i(TAG, "o is not ChRow!!!!!!");
+        private Drawable background, markPlay, markDelete;
+        private int markMargin;
+
+        public SwipeCallback() {
+            super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+        }
+
+        public SwipeCallback(int dragDirs, int swipeDirs) {
+            super(dragDirs, swipeDirs);
+        }
+
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            int swipedPosition = viewHolder.getAdapterPosition();
+            Long itemId = MainActivity.this.chAdapter.getItemId(swipedPosition);
+
+            if (ItemTouchHelper.RIGHT == direction) {
+                RadioApp app = (RadioApp) getApplicationContext();
+                if (app != null) {
+                    RadioServiceHelper rsh = app.getRadioServiceHelper();
+                    MainActivity.this.chAdapter.getCursor().moveToPosition(swipedPosition);
+                    rsh.play(ChRow.bindCursor(MainActivity.this.chAdapter.getCursor()));
                 }
+                MainActivity.this.chAdapter.notifyItemChanged(swipedPosition);
+            } else if (ItemTouchHelper.LEFT == direction) {
+                String selectionClause = "id = ?";
+                String[] selectionArgs = {Long.toString(itemId)};
+                int nDeleted = getContentResolver().delete(
+                        Uri.parse("content://" + Consts.CHANNEL_PROVIER_AUTHORITY + "/" + Consts.TB_RADIO_CHANNEL),
+                        selectionClause,
+                        selectionArgs
+                );
+                MainActivity.this.getAllChannelListFromProvider();
+            } else {
+                /* Nothing to do */
             }
         }
-    }
 
-    private class ChRowLongClickedListener implements AdapterView.OnItemLongClickListener {
         @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            Object o = parent.getItemAtPosition(position);
-            if (o instanceof ChRow) {
-                final ChRow pbrow = (ChRow) o;
-                if (Consts.DEBUG) {
-                    Log.i(TAG, "o is ChRow!!!!!!");
-                    Log.i(TAG, "id = " + pbrow.getId());
-                    Log.i(TAG, "name = " + pbrow.getChName());
-                    Log.i(TAG, "url = " + pbrow.getPlayUrl());
-                }
+        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                View itemView = viewHolder.itemView;
 
-                String popupTitle = MainActivity.this.getResources().getString(R.string.chp_delete);
-                String popupMessage = MainActivity.this.getResources().getString(R.string.chp_delete_msg);
-                popupMessage += "\n [" + pbrow.getChFreq() + "] " + pbrow.getChName();
+                markDelete = ContextCompat.getDrawable(itemView.getContext(), android.R.drawable.ic_delete);
+                markDelete.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
 
-                String txtDelete = MainActivity.this.getResources().getString(R.string.delete);
-                String txtCancel = MainActivity.this.getResources().getString(R.string.cancel);
+                markPlay = ContextCompat.getDrawable(itemView.getContext(), android.R.drawable.ic_media_play);
+                markPlay.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
 
-                AlertDialog.Builder adBuilder = new AlertDialog.Builder(MainActivity.this);
-                adBuilder.setTitle(popupTitle);
-                adBuilder.setMessage(popupMessage);
-                adBuilder.setPositiveButton(txtDelete,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(
-                                    DialogInterface dialog, int id) {
-                                String selectionClause = "id = ?";
-                                String[] selectionArgs = {Long.toString(pbrow.getId())};
-                                int nDeleted = getContentResolver().delete(
-                                        Uri.parse("content://" + Consts.CHANNEL_PROVIER_URI + "/" + Consts.TB_RADIO_CHANNEL),
-                                        selectionClause,
-                                        selectionArgs
-                                );
-                            }
-                        });
-                adBuilder.setNegativeButton(txtCancel,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(
-                                    DialogInterface dialog, int id) {
-                                // Nothing to do
-                            }
-                        });
-                adBuilder.create().show();
-            } else {
-                if (Consts.DEBUG) {
-                    Log.i(TAG, "o is not ChRow!!!!!!");
+                markMargin = (int) itemView.getContext().getResources().getDimension(R.dimen.pb_home_hmargin);
+
+                // Item 을 좌측으로 Swipe 했을 때 Background 변화: ItemTouchHelper.LEFT
+                if (dX < 1) {
+                    background = new ColorDrawable(Color.parseColor("#FFD32F2F"));
+                    background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                    //dX(dY): 사용자 동작에 의한 수평(수직) 변화의 양
+                    background.draw(c); //Bounds: 범위. draw: 그리기. - 사용자 동작에 따라 Item 의 Background 변화
+
+                    // Mark 그리기
+                    int itemHeight = itemView.getBottom() - itemView.getTop(); // Item 높이
+                    int markWidth = markDelete.getIntrinsicWidth(); // Intrinsic: 본질적 - xMark 의 실제 길이
+                    int markHeight = markDelete.getIntrinsicHeight();
+
+                    int markLeft = itemView.getRight() - markMargin - markWidth;
+                    int markRight = itemView.getRight() - markMargin;
+                    int markTop = itemView.getTop() + (itemHeight - markHeight) / 2;
+                    int markBottom = markTop + markHeight;
+                    markDelete.setBounds(markLeft, markTop, markRight, markBottom);
+                    markDelete.draw(c);
+                } else { // ItemTouchHelper.RIGHT
+                    background = new ColorDrawable(Color.parseColor("#FF388E3C"));
+                    background.setBounds(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + (int) dX, itemView.getBottom());
+                    background.draw(c);
+
+                    // Mark 그리기
+                    int itemHeight = itemView.getBottom() - itemView.getTop(); // Item 높이
+                    int markWidth = markPlay.getIntrinsicWidth(); // Intrinsic: 본질적 - xMark 의 실제 길이
+                    int markHeight = markPlay.getIntrinsicHeight();
+
+                    int markLeft = itemView.getLeft() + markMargin;
+                    int markRight = itemView.getLeft() + markMargin + markWidth;
+                    int markTop = itemView.getTop() + (itemHeight - markHeight) / 2;
+                    int markBottom = markTop + markHeight;
+                    markPlay.setBounds(markLeft, markTop, markRight, markBottom);
+                    markPlay.draw(c);
                 }
             }
-
-            return true;
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
         }
     }
 
@@ -470,7 +504,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public boolean onQueryTextSubmit(String query) {
             if (this.myAdapter != null) {
-                getChannelListFromProvider(query);
+                Log.d(TAG, "[onQueryTextSubmit] query = " + query);
+                MainActivity.this.getChannelListFromProvider(query);
                 return true;
             }
             return false;
@@ -479,7 +514,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public boolean onQueryTextChange(String newText) {
             if ((this.myAdapter != null) && (newText == null || newText.length() == 0)) {
-                getAllChannelListFromProvider();
+                Log.d(TAG, "[onQueryTextChange] newText = " + newText);
+                MainActivity.this.getAllChannelListFromProvider();
                 return true;
             }
             return false;
@@ -489,8 +525,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private class CsvFileSelectedListener implements ChooseFileDialog.FileChosenListener {
         @Override
         public void onFileChosen(File chosenFile) {
-            ChDbInterface pdi = ChDbManager.getInstance().getPbDbInterface();
-            new ChImporter(pdi, chosenFile, new Runnable() {
+            new ChImporter(getApplicationContext(), chosenFile, new Runnable() {
                 @Override
                 public void run() {
                     Toast.makeText(MainActivity.this, "File is imported!!", Toast.LENGTH_SHORT).show();

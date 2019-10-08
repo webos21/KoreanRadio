@@ -2,7 +2,10 @@ package com.gmail.webos21.radio;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -14,8 +17,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gmail.webos21.radio.db.ChDbInterface;
-import com.gmail.webos21.radio.db.ChDbManager;
 import com.gmail.webos21.radio.db.ChRow;
 
 import java.text.ParseException;
@@ -81,8 +82,24 @@ public class ChEditActivity extends AppCompatActivity implements View.OnClickLis
             Long pbId = i.getLongExtra(Consts.EXTRA_ARG_ID, -1);
             Log.i(TAG, "pbId = " + pbId);
             if (pbId > 0) {
-                ChDbInterface pdi = ChDbManager.getInstance().getPbDbInterface();
-                setValues(pdi.getRow(pbId));
+                String[] projection = null; /* "null" means ALL */
+                String selection = ChRow.ID + " = ?";
+                String[] selectionArgs = new String[]{Long.toString(pbId)};
+                String sortOrder = null;
+
+                Cursor rset = getContentResolver().query(
+                        Uri.parse("content://" + Consts.CHANNEL_PROVIER_AUTHORITY + "/" + Consts.TB_RADIO_CHANNEL),
+                        projection, selection, selectionArgs, sortOrder
+                );
+
+                if (rset != null && rset.getCount() == 1) {
+                    rset.moveToFirst();
+
+                    ChRow aRow = ChRow.bindCursor(rset);
+                    setValues(aRow);
+
+                    rset.close();
+                }
             } else {
                 finish();
             }
@@ -187,9 +204,23 @@ public class ChEditActivity extends AppCompatActivity implements View.OnClickLis
             e.printStackTrace();
         }
 
-        ChRow chr = new ChRow(Long.parseLong(id), ch_freq, ch_name, play_url, logo_url, rd.getTime(), System.currentTimeMillis(), memo);
-        ChDbInterface pdi = ChDbManager.getInstance().getPbDbInterface();
-        pdi.updateRow(chr);
+        ContentValues cv = new ContentValues();
+        cv.put(ChRow.ID, Long.parseLong(id));
+        cv.put(ChRow.CH_FREQ, ch_freq);
+        cv.put(ChRow.CH_NAME, ch_name);
+        cv.put(ChRow.PLAY_URL, play_url);
+        cv.put(ChRow.LOGO_URL, logo_url);
+        cv.put(ChRow.REG_DATE, rd.getTime());
+        cv.put(ChRow.FIX_DATE, System.currentTimeMillis());
+        cv.put(ChRow.MEMO, memo);
+
+        String selection = ChRow.ID + " = ?";
+        String[] selectionArgs = new String[]{id};
+
+        int upRows = getContentResolver().update(
+                Uri.parse("content://" + Consts.CHANNEL_PROVIER_AUTHORITY + "/" + Consts.TB_RADIO_CHANNEL),
+                cv, selection, selectionArgs
+        );
 
         Intent i = new Intent();
         setResult(Activity.RESULT_OK, i);
