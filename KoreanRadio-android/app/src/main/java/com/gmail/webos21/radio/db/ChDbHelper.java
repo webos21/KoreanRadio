@@ -16,10 +16,8 @@ public class ChDbHelper extends SQLiteOpenHelper implements ChDbInterface {
 
     private static final String TAG = "ChDbHelper";
 
-    private static final String TB_RADIO_CHANNEL = "radio_channel";
-
     private static final String CREATE_TB_RADIO_CHANNEL =
-            /* Indent */"CREATE TABLE IF NOT EXISTS " + TB_RADIO_CHANNEL + " (" +
+            /* Indent */"CREATE TABLE IF NOT EXISTS " + Consts.TB_RADIO_CHANNEL + " (" +
             /* Indent */"	id               INTEGER  PRIMARY KEY  AUTOINCREMENT, " +
             /* Indent */"	ch_freq          VARCHAR(6), " +
             /* Indent */"	ch_name          VARCHAR(100), " +
@@ -31,7 +29,7 @@ public class ChDbHelper extends SQLiteOpenHelper implements ChDbInterface {
             /* Indent */");";
 
     private static final String DROP_TB_RADIO_CHANNEL =
-            /* Indent */"DROP TABLE IF EXISTS " + TB_RADIO_CHANNEL + ";";
+            /* Indent */"DROP TABLE IF EXISTS " + Consts.TB_RADIO_CHANNEL + ";";
 
     public ChDbHelper(Context context, String name, SQLiteDatabase.CursorFactory factory,
                       int version) {
@@ -67,7 +65,7 @@ public class ChDbHelper extends SQLiteOpenHelper implements ChDbInterface {
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor rset = db.rawQuery("SELECT * FROM "
-                + TB_RADIO_CHANNEL, null);
+                + Consts.TB_RADIO_CHANNEL, null);
         if (rset == null || rset.getCount() == 0) {
             return aList;
         }
@@ -92,10 +90,18 @@ public class ChDbHelper extends SQLiteOpenHelper implements ChDbInterface {
         db.close();
 
         if (Consts.DB_DEBUG) {
-            debugDump(TB_RADIO_CHANNEL);
+            debugDump(Consts.TB_RADIO_CHANNEL);
         }
 
         return aList;
+    }
+
+    @Override
+    public Cursor findRowsCursor() {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor rset = db.rawQuery("SELECT * FROM "
+                + Consts.TB_RADIO_CHANNEL, null);
+        return rset;
     }
 
     @Override
@@ -105,7 +111,7 @@ public class ChDbHelper extends SQLiteOpenHelper implements ChDbInterface {
         SQLiteDatabase db = getReadableDatabase();
         Cursor rset = db.rawQuery(
                 /* intent ---------- */ "SELECT * " +
-                        /* intent -------- */ " FROM " + TB_RADIO_CHANNEL + " " +
+                        /* intent -------- */ " FROM " + Consts.TB_RADIO_CHANNEL + " " +
                         /* intent -------- */ " WHERE (surl LIKE ?) OR " +
                         /* intent -------- */ "        (sname LIKE ?) OR " +
                         /* intent -------- */ "        (stype LIKE ?)"
@@ -137,9 +143,22 @@ public class ChDbHelper extends SQLiteOpenHelper implements ChDbInterface {
     }
 
     @Override
+    public Cursor findRowsCursor(String keyString) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor rset = db.rawQuery(
+                /* intent ---------- */ "SELECT * " +
+                        /* intent -------- */ " FROM " + Consts.TB_RADIO_CHANNEL + " " +
+                        /* intent -------- */ " WHERE (surl LIKE ?) OR " +
+                        /* intent -------- */ "        (sname LIKE ?) OR " +
+                        /* intent -------- */ "        (stype LIKE ?)"
+                , new String[]{"%" + keyString + "%", "%" + keyString + "%", "%" + keyString + "%"});
+        return rset;
+    }
+
+    @Override
     public ChRow getRow(Long id) {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor rset = db.rawQuery("SELECT * FROM " + TB_RADIO_CHANNEL
+        Cursor rset = db.rawQuery("SELECT * FROM " + Consts.TB_RADIO_CHANNEL
                 + " WHERE id = " + id, null);
         if (rset == null || rset.getCount() == 0) {
             return null;
@@ -167,11 +186,11 @@ public class ChDbHelper extends SQLiteOpenHelper implements ChDbInterface {
     @Override
     public boolean updateRow(ChRow newRow) {
         SQLiteDatabase db = getWritableDatabase();
-        Cursor rset = db.rawQuery("SELECT * FROM " + TB_RADIO_CHANNEL
+        Cursor rset = db.rawQuery("SELECT * FROM " + Consts.TB_RADIO_CHANNEL
                 + " WHERE id = " + newRow.getId(), null);
         if (rset == null || rset.getCount() == 0) {
             ContentValues cv = new ContentValues();
-            cv.put("id", newRow.getId());
+            cv.put("_id", newRow.getId());
             cv.put("ch_freq", newRow.getChFreq());
             cv.put("ch_name", newRow.getChName());
             cv.put("play_url", newRow.getPlayUrl());
@@ -179,7 +198,7 @@ public class ChDbHelper extends SQLiteOpenHelper implements ChDbInterface {
             cv.put("reg_date", newRow.getRegDate().getTime());
             cv.put("fix_date", newRow.getFixDate().getTime());
             cv.put("memo", newRow.getMemo());
-            db.insert(TB_RADIO_CHANNEL, null, cv);
+            db.insert(Consts.TB_RADIO_CHANNEL, null, cv);
         } else {
             ContentValues cv = new ContentValues();
             cv.put("ch_freq", newRow.getChFreq());
@@ -189,7 +208,7 @@ public class ChDbHelper extends SQLiteOpenHelper implements ChDbInterface {
             cv.put("reg_date", newRow.getRegDate().getTime());
             cv.put("fix_date", newRow.getFixDate().getTime());
             cv.put("memo", newRow.getMemo());
-            db.update(TB_RADIO_CHANNEL, cv, " id = ? ",
+            db.update(Consts.TB_RADIO_CHANNEL, cv, " id = ? ",
                     new String[]{Long.toString(newRow.getId())});
         }
 
@@ -204,7 +223,7 @@ public class ChDbHelper extends SQLiteOpenHelper implements ChDbInterface {
     @Override
     public int deleteRow(Long id) {
         SQLiteDatabase db = getWritableDatabase();
-        int result = db.delete(TB_RADIO_CHANNEL, "id = " + id, null);
+        int result = db.delete(Consts.TB_RADIO_CHANNEL, "id = " + id, null);
         db.close();
 
         return result;

@@ -9,24 +9,19 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.provider.MediaStore;
+
+import com.gmail.webos21.radio.db.ChRow;
 
 import java.util.ArrayList;
 
 public class RadioService extends Service {
     private final IBinder mBinder = new RadioServiceBinder();
-    private ArrayList<Long> mAudioIds = new ArrayList<>();
+    private ArrayList<Long> mChannelIds = new ArrayList<>();
     private MediaPlayer mMediaPlayer;
     private boolean isPrepared;
     private int mCurrentPosition;
-    private AudioAdapter.AudioItem mAudioItem;
+    private ChRow mChannel;
     private NotificationPlayer mNotificationPlayer;
-
-    public class RadioServiceBinder extends Binder {
-        RadioService getService() {
-            return RadioService.this;
-        }
-    }
 
     @Override
     public void onCreate() {
@@ -118,26 +113,27 @@ public class RadioService extends Service {
         }
     }
 
-    private void queryAudioItem(int position) {
+    private void queryChannelItem(int position) {
         mCurrentPosition = position;
-        long audioId = mAudioIds.get(position);
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        long chId = mChannelIds.get(position);
+        Uri uri = Uri.parse("content://" + Consts.CHANNEL_PROVIER_URI + "/" + Consts.TB_RADIO_CHANNEL);
         String[] projection = new String[]{
-                MediaStore.Audio.Media._ID,
-                MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.ARTIST,
-                MediaStore.Audio.Media.ALBUM,
-                MediaStore.Audio.Media.ALBUM_ID,
-                MediaStore.Audio.Media.DURATION,
-                MediaStore.Audio.Media.DATA
+                ChRow.ID,
+                ChRow.CH_FREQ,
+                ChRow.CH_NAME,
+                ChRow.PLAY_URL,
+                ChRow.LOGO_URL,
+                ChRow.REG_DATE,
+                ChRow.FIX_DATE,
+                ChRow.MEMO
         };
-        String selection = MediaStore.Audio.Media._ID + " = ?";
-        String[] selectionArgs = {String.valueOf(audioId)};
+        String selection = ChRow.ID + " = ?";
+        String[] selectionArgs = {String.valueOf(chId)};
         Cursor cursor = getContentResolver().query(uri, projection, selection, selectionArgs, null);
         if (cursor != null) {
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
-                mAudioItem = AudioAdapter.AudioItem.bindCursor(cursor);
+                mChannel = ChRow.bindCursor(cursor);
             }
             cursor.close();
         }
@@ -145,7 +141,7 @@ public class RadioService extends Service {
 
     private void prepare() {
         try {
-            mMediaPlayer.setDataSource(mAudioItem.mDataPath);
+            mMediaPlayer.setDataSource(mChannel.getPlayUrl());
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.prepareAsync();
         } catch (Exception e) {
@@ -158,15 +154,15 @@ public class RadioService extends Service {
         mMediaPlayer.reset();
     }
 
-    public void setPlayList(ArrayList<Long> audioIds) {
-        if (!mAudioIds.equals(audioIds)) {
-            mAudioIds.clear();
-            mAudioIds.addAll(audioIds);
+    public void setPlayList(ArrayList<Long> channelIds) {
+        if (!mChannelIds.equals(channelIds)) {
+            mChannelIds.clear();
+            mChannelIds.addAll(channelIds);
         }
     }
 
-    public AudioAdapter.AudioItem getAudioItem() {
-        return mAudioItem;
+    public ChRow getChannelItem() {
+        return mChannel;
     }
 
     public boolean isPlaying() {
@@ -174,7 +170,7 @@ public class RadioService extends Service {
     }
 
     public void play(int position) {
-        queryAudioItem(position);
+        queryChannelItem(position);
         stop();
         prepare();
     }
@@ -196,7 +192,7 @@ public class RadioService extends Service {
     }
 
     public void forward() {
-        if (mAudioIds.size() - 1 > mCurrentPosition) {
+        if (mChannelIds.size() - 1 > mCurrentPosition) {
             mCurrentPosition++; // 다음 포지션으로 이동.
         } else {
             mCurrentPosition = 0; // 처음 포지션으로 이동.
@@ -208,8 +204,14 @@ public class RadioService extends Service {
         if (mCurrentPosition > 0) {
             mCurrentPosition--; // 이전 포지션으로 이동.
         } else {
-            mCurrentPosition = mAudioIds.size() - 1; // 마지막 포지션으로 이동.
+            mCurrentPosition = mChannelIds.size() - 1; // 마지막 포지션으로 이동.
         }
         play(mCurrentPosition);
+    }
+
+    public class RadioServiceBinder extends Binder {
+        RadioService getService() {
+            return RadioService.this;
+        }
     }
 }

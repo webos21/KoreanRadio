@@ -1,11 +1,19 @@
 package com.gmail.webos21.radio.db;
 
 import android.database.Cursor;
-import android.provider.MediaStore;
 
 import java.util.Date;
 
 public class ChRow {
+    public static final String ID = "id";
+    public static final String CH_FREQ = "ch_freq";
+    public static final String CH_NAME = "ch_name";
+    public static final String PLAY_URL = "play_url";
+    public static final String LOGO_URL = "logo_url";
+    public static final String REG_DATE = "reg_date";
+    public static final String FIX_DATE = "fix_date";
+    public static final String MEMO = "memo";
+
     private Long id;
     private String chFreq;
     private String chName;
@@ -25,6 +33,19 @@ public class ChRow {
         this.regDate = new Date(regDate);
         this.fixDate = new Date(fixDate);
         this.memo = memo;
+    }
+
+    public static ChRow bindCursor(Cursor cursor) {
+        ChRow aRow = new ChRow(
+                /* id ------------- */cursor.getLong(0),
+                /* ch_freq -------- */cursor.getString(1),
+                /* ch_name -------- */cursor.getString(2),
+                /* play_url ------- */cursor.getString(3),
+                /* logo_url ------- */cursor.getString(4),
+                /* reg_date ------- */cursor.getLong(5),
+                /* fix_date ------- */cursor.getLong(6),
+                /* memo ----------- */cursor.getString(7));
+        return aRow;
     }
 
     public Long getId() {
@@ -90,5 +111,4 @@ public class ChRow {
     public void setMemo(String memo) {
         this.memo = memo;
     }
-
 }

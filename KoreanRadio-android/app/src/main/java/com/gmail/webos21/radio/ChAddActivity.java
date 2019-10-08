@@ -2,7 +2,9 @@ package com.gmail.webos21.radio;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -12,10 +14,6 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.gmail.webos21.radio.db.ChDbInterface;
-import com.gmail.webos21.radio.db.ChDbManager;
-import com.gmail.webos21.radio.db.ChRow;
 
 import java.text.ParseException;
 import java.util.Calendar;
@@ -150,9 +148,19 @@ public class ChAddActivity extends AppCompatActivity implements View.OnClickList
             e.printStackTrace();
         }
 
-        ChRow pbr = new ChRow(null, ch_freq, ch_name, play_url, logo_url, rd.getTime(), System.currentTimeMillis(), memo);
-        ChDbInterface pdi = ChDbManager.getInstance().getPbDbInterface();
-        pdi.updateRow(pbr);
+        ContentValues cv = new ContentValues();
+        cv.put("ch_freq", ch_freq);
+        cv.put("ch_name", ch_name);
+        cv.put("play_url", play_url);
+        cv.put("logo_url", logo_url);
+        cv.put("reg_date", rd.getTime());
+        cv.put("fix_date", System.currentTimeMillis());
+        cv.put("memo", memo);
+
+        Uri addUri = getContentResolver().insert(
+                Uri.parse("content://" + Consts.CHANNEL_PROVIER_URI + "/" + Consts.TB_RADIO_CHANNEL),
+                cv
+        );
 
         Intent i = new Intent();
         setResult(Activity.RESULT_OK, i);

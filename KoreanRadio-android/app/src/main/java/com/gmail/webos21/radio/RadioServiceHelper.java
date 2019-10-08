@@ -61,13 +61,6 @@ public class RadioServiceHelper {
         return false;
     }
 
-    public AudioAdapter.AudioItem getAudioItem() {
-        if (mService != null) {
-            return mService.getAudioItem();
-        }
-        return null;
-    }
-
     public void pause() {
         if (mService != null) {
             mService.play();

@@ -6,16 +6,25 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,7 +34,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CheckBox cbIcon;
     private TextView tvTotalSite;
 
-    private ListView chlist;
+    private RecyclerView chlist;
     private ChRowAdapter chAdapter;
 
     @Override
@@ -104,14 +112,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvTotalSite = (TextView) findViewById(R.id.tv_total_site);
 
         // Set Main-ListView
-        chAdapter = new ChRowAdapter(this, pref.getBoolean(Consts.PREF_SHOW_ICON, false));
-        chlist = (ListView) findViewById(R.id.lv_container);
+        chlist = (RecyclerView) findViewById(R.id.recyclerview);
+        chAdapter = new ChRowAdapter(this, null, pref.getBoolean(Consts.PREF_SHOW_ICON, false));
         chlist.setAdapter(chAdapter);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        chlist.setLayoutManager(layoutManager);
+
+//        chlist.setAdapter(chAdapter);
 //        chlist.setOnItemClickListener(new ChRowClickedListener());
 //        chlist.setOnItemLongClickListener(new ChRowLongClickedListener());
 
         // Set Views
-        tvTotalSite.setText(getResources().getString(R.string.cfg_total_item) + chAdapter.getCount());
+        tvTotalSite.setText(getResources().getString(R.string.cfg_total_item) + chAdapter.getItemCount());
     }
 
     @Override
@@ -158,6 +171,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Consts.PERM_REQ_EXTERNAL_STORAGE);
             return;
         }
+
+        getAllChannelListFromProvider();
     }
 
     @Override
@@ -222,27 +237,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (requestCode == Consts.ACTION_ADD) {
             if (resultCode == RESULT_OK) {
-                this.chAdapter.refresh();
+                getAllChannelListFromProvider();
             }
         }
         if (requestCode == Consts.ACTION_MODIFY) {
             if (resultCode == RESULT_OK) {
-                this.chAdapter.refresh();
+                getAllChannelListFromProvider();
             }
         }
 
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void refreshListView() {
-        MainActivity.this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                String totalSite = MainActivity.this.getResources().getString(R.string.cfg_total_item) + MainActivity.this.chAdapter.getCount();
-                MainActivity.this.tvTotalSite.setText(totalSite);
-                MainActivity.this.chAdapter.notifyDataSetChanged();
-            }
-        });
+    private void getAllChannelListFromProvider() {
+        getSupportLoaderManager().initLoader(Consts.MAIN_LOADER_ID, null, new ChannelLoaderCallback());
+    }
+
+    private void getChannelListFromProvider(String searchTerm) {
+        getSupportLoaderManager().initLoader(Consts.MAIN_LOADER_ID, null, new ChannelLoaderCallback(searchTerm));
     }
 
     private void showFileDialog() {
@@ -320,6 +332,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private class ChannelLoaderCallback implements LoaderManager.LoaderCallbacks<Cursor> {
+
+        private String searchTerm;
+
+        public ChannelLoaderCallback() {
+            this.searchTerm = null;
+        }
+
+        public ChannelLoaderCallback(String searchTerm) {
+            this.searchTerm = searchTerm;
+        }
+
+        @NonNull
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+            Uri uri = Uri.parse("content://" + Consts.CHANNEL_PROVIER_URI + "/" + Consts.TB_RADIO_CHANNEL);
+            String[] projection = new String[]{
+                    ChRow.ID,
+                    ChRow.CH_FREQ,
+                    ChRow.CH_NAME,
+                    ChRow.PLAY_URL,
+                    ChRow.LOGO_URL,
+                    ChRow.REG_DATE,
+                    ChRow.FIX_DATE,
+                    ChRow.MEMO
+            };
+            String selection = null;
+            String sortOrder = null;
+            if (searchTerm != null) {
+
+            }
+            return new CursorLoader(getApplicationContext(), uri, projection, selection, null, sortOrder);
+        }
+
+        @Override
+        public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+            MainActivity.this.chAdapter.swapCursor(data);
+            String totalSite = MainActivity.this.getResources().getString(R.string.cfg_total_item) + MainActivity.this.chAdapter.getItemCount();
+            MainActivity.this.tvTotalSite.setText(totalSite);
+        }
+
+        @Override
+        public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+            MainActivity.this.chAdapter.swapCursor(null);
+            String totalSite = MainActivity.this.getResources().getString(R.string.cfg_total_item) + MainActivity.this.chAdapter.getItemCount();
+            MainActivity.this.tvTotalSite.setText(totalSite);
+        }
+    }
+
     private class ChRowClickedListener implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -371,9 +432,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         new DialogInterface.OnClickListener() {
                             public void onClick(
                                     DialogInterface dialog, int id) {
-                                ChDbInterface pdi = ChDbManager.getInstance().getPbDbInterface();
-                                pdi.deleteRow(pbrow);
-                                MainActivity.this.refreshListView();
+                                String selectionClause = "id = ?";
+                                String[] selectionArgs = {Long.toString(pbrow.getId())};
+                                int nDeleted = getContentResolver().delete(
+                                        Uri.parse("content://" + Consts.CHANNEL_PROVIER_URI + "/" + Consts.TB_RADIO_CHANNEL),
+                                        selectionClause,
+                                        selectionArgs
+                                );
                             }
                         });
                 adBuilder.setNegativeButton(txtCancel,
@@ -405,7 +470,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public boolean onQueryTextSubmit(String query) {
             if (this.myAdapter != null) {
-                this.myAdapter.searchItems(query);
+                getChannelListFromProvider(query);
                 return true;
             }
             return false;
@@ -414,7 +479,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public boolean onQueryTextChange(String newText) {
             if ((this.myAdapter != null) && (newText == null || newText.length() == 0)) {
-                this.myAdapter.searchAll();
+                getAllChannelListFromProvider();
                 return true;
             }
             return false;
@@ -429,7 +494,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void run() {
                     Toast.makeText(MainActivity.this, "File is imported!!", Toast.LENGTH_SHORT).show();
-                    MainActivity.this.refreshListView();
+                    MainActivity.this.getAllChannelListFromProvider();
                 }
             }).execute();
         }

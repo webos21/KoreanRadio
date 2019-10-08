@@ -8,23 +8,23 @@ public class ChDbManager {
 
     private static volatile ChDbManager instance;
 
-        private Context context;
-        private ChDbHelper dbHelper;
+    private Context context;
+    private ChDbHelper dbHelper;
 
     private ChDbManager() {
-        }
+    }
 
-        public static ChDbManager getInstance() {
+    public static ChDbManager getInstance() {
+        if (instance != null) {
+            return instance;
+        }
+        synchronized (ChDbManager.class) {
             if (instance != null) {
                 return instance;
             }
-            synchronized (ChDbManager.class) {
-                if (instance != null) {
-                    return instance;
-                }
-                instance = new ChDbManager();
-            }
-            return instance;
+            instance = new ChDbManager();
+        }
+        return instance;
     }
 
     public void init(Context context) {

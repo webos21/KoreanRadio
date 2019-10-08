@@ -7,7 +7,14 @@ public class Consts {
     public static final boolean DEBUG = true;
     public static final boolean DB_DEBUG = false;
 
-    public static final int DB_VERSION = 1;
+    public static final String DB_FILE = "radio.db";
+    public static final int DB_VERSION = 3;
+
+    public static final String TB_RADIO_CHANNEL = "radio_channel";
+
+    public static final int MAIN_LOADER_ID = 1;
+
+    public static final String CHANNEL_PROVIER_URI = "com.gmail.webos21.radio.ChannelContentProvider";
 
     public static final int ACTION_ADD = 3;
     public static final int ACTION_MODIFY = 4;

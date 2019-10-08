@@ -3,19 +3,20 @@ package com.gmail.webos21.radio;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
-import android.content.ContentUris;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
-import java.io.IOException;
+import com.gmail.webos21.android.ild.ImageLoader;
 
 public class NotificationPlayer {
+
     private RadioService mService;
     private boolean isForeground;
+
+    private ImageLoader imgLoader;
 
     public NotificationPlayer(RadioService service) {
         mService = service;
@@ -26,13 +27,11 @@ public class NotificationPlayer {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                Uri albumArtUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), mService.getAudioItem().mAlbumId);
-                Bitmap largIcon = null;
-                try {
-                    largIcon = Picasso.with(mService).load(albumArtUri).get();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (imgLoader == null) {
+                    imgLoader = new ImageLoader(mService.getApplicationContext(), R.drawable.ic_gt);
                 }
+
+                Bitmap largIcon = imgLoader.getBitmap(mService.getChannelItem().getLogoUrl());
 
                 Intent actionTogglePlay = new Intent(Consts.TOGGLE_PLAY);
                 Intent actionForward = new Intent(Consts.FORWARD);
@@ -46,8 +45,8 @@ public class NotificationPlayer {
 
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(mService, Consts.NOTI_CHANNEL);
                 builder
-                        .setContentTitle(mService.getAudioItem().mTitle)
-                        .setContentText(mService.getAudioItem().mArtist)
+                        .setContentTitle("[" + mService.getChannelItem().getChFreq() + "]")
+                        .setContentText(mService.getChannelItem().getChName())
                         .setLargeIcon(largIcon)
                         .setContentIntent(PendingIntent.getActivity(mService, 0, new Intent(mService, MainActivity.class), 0));
 
@@ -57,7 +56,7 @@ public class NotificationPlayer {
                 builder.addAction(new NotificationCompat.Action(android.R.drawable.ic_menu_close_clear_cancel, "", close));
                 int[] actionsViewIndexs = new int[]{1, 2, 3};
                 builder.setStyle(new android.support.v4.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(actionsViewIndexs));
-                builder.setSmallIcon(R.drawable.empty_albumart);
+                builder.setSmallIcon(R.drawable.ic_gt);
 
                 Notification notification = builder.build();
 

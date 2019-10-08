@@ -11,7 +11,7 @@
         android:theme="@style/AppTheme.NoActionBar">
 
         <activity
-            android:name="com.gmail.webos21.radio.MainActivity"
+            android:name=".MainActivity"
             android:launchMode="singleInstance"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -21,7 +21,7 @@
         </activity>
 
         <activity
-            android:name="com.gmail.webos21.radio.ChAddActivity"
+            android:name=".ChAddActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:noHistory="true"
@@ -29,18 +29,22 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
-            android:name="com.gmail.webos21.radio.ChEditActivity"
+            android:name=".ChEditActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:noHistory="true"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <service
-            android:name="com.gmail.webos21.radio.RadioService"
-            android:exported="false"
-            android:label="T40Service" />
+        <provider
+            android:name=".ChannelContentProvider"
+            android:authorities="com.gmail.webos21.radio.ChannelContentProvider"
+            android:exported="true" />
 
+        <service
+            android:name=".RadioService"
+            android:exported="false"
+            android:label="RadioService" />
     </application>
 
     <!-- For Internet Access -->
