@@ -4,11 +4,13 @@ import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 
 import com.gmail.webos21.radio.db.ChRow;
+import com.gmail.webos21.radio.task.PlayUrlGetter;
 
 import java.util.ArrayList;
 
@@ -115,9 +117,14 @@ public class RadioService extends Service {
 
     private void prepare() {
         try {
-            mMediaPlayer.setDataSource(mChannel.getPlayUrl());
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mMediaPlayer.prepareAsync();
+            String purl = mChannel.getPlayUrl();
+            if (purl != null && purl.startsWith("http:") && purl.endsWith(".pls")) {
+                new PlayUrlGetter(purl, mMediaPlayer).execute();
+            } else {
+                mMediaPlayer.setDataSource(mChannel.getPlayUrl());
+                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                mMediaPlayer.prepareAsync();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

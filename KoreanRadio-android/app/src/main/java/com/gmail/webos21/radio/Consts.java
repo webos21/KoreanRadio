@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 
 public class Consts {
 
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     public static final boolean DB_DEBUG = false;
 
     public static final String DB_FILE = "radio.db";
